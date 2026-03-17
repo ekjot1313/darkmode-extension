@@ -57,7 +57,7 @@ If dark mode is already detected, the extension skips injection automatically.
 - **Global Dark Mode** — master toggle for all sites
 - **This Site** — per-site override (saved permanently per hostname)
 - **Brightness slider** — click, drag, or use `←` `→` keys to change level
-- **"Dark mode already active" badge** — appears on sites with native dark mode; hover for details
+- **"Dark mode already active" badge** — appears on sites with native dark mode (regardless of global toggle); hover for details. Use "This Site" toggle to force-apply anyway
 - **Reset site to global default** — removes the per-site override
 
 ---
@@ -83,7 +83,7 @@ If dark mode is already detected, the extension skips injection automatically.
 4. Use the **Brightness slider** to adjust intensity
    - Click/drag to any level
    - Use `←` `→` arrow keys for precise level jumps
-5. On sites with native dark mode, a green badge will appear — Night Mode is automatically paused to avoid conflicts
+5. On sites with native dark mode, a green **"Dark mode already active"** badge appears — Night Mode is automatically paused. Hover the badge for details, or use "This Site" toggle to force-apply
 6. Click **Reset site to global default** to remove a per-site override
 
 ---

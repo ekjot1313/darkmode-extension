@@ -71,12 +71,6 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
   hostname = url.hostname;
   siteLabel.textContent = hostname;
 
-  // Ask content script if site already has dark mode
-  chrome.tabs.sendMessage(tab.id, { action: 'detectDark' }, (response) => {
-    const alreadyDark = response && response.alreadyDark;
-    detectedBadge.classList.toggle('visible', alreadyDark);
-  });
-
   chrome.storage.sync.get(['globalEnabled', 'siteSettings', 'brightnessLevel'], (data) => {
     const globalEnabled = data.globalEnabled || false;
     const siteSettings  = data.siteSettings || {};
@@ -87,7 +81,27 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     slider.value = levelIndex;
     updateUI(levelIndex);
 
-    siteToggle.checked = siteOverride !== undefined ? siteOverride : globalEnabled;
+    // Ask content script for native dark detection result
+    chrome.tabs.sendMessage(tab.id, { action: 'detectDark' }, (response) => {
+      const nativeDark = response && response.alreadyDark;
+
+      // Show badge whenever native dark is detected AND extension hasn't
+      // been manually forced ON for this site via the site override
+      const forcedOn = siteOverride === true;
+      detectedBadge.classList.toggle('visible', nativeDark && !forcedOn);
+
+      // "This Site" toggle:
+      // - explicit override set → show that value
+      // - native dark detected, no override → show OFF (extension skipped)
+      // - otherwise → follow global
+      if (siteOverride !== undefined) {
+        siteToggle.checked = siteOverride;
+      } else if (nativeDark) {
+        siteToggle.checked = false;
+      } else {
+        siteToggle.checked = globalEnabled;
+      }
+    });
   });
 });
 
