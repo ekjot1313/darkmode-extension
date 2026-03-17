@@ -70,6 +70,7 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
   const url = new URL(tab.url);
   hostname = url.hostname;
   siteLabel.textContent = hostname;
+  siteLabel.title = hostname;
 
   chrome.storage.sync.get(['globalEnabled', 'siteSettings', 'brightnessLevel'], (data) => {
     const globalEnabled = data.globalEnabled || false;
