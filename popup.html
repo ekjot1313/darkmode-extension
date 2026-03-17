@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 280px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+      padding: 16px;
+    }
+    h2 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 14px;
+      color: #a78bfa;
+      letter-spacing: 0.5px;
+    }
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #16213e;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+    }
+    .label { font-size: 13px; }
+    .sublabel { font-size: 11px; color: #888; margin-top: 2px; }
+    /* Toggle switch */
+    .switch { position: relative; display: inline-block; width: 42px; height: 24px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute; cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #444;
+      border-radius: 24px;
+      transition: 0.3s;
+    }
+    .slider:before {
+      position: absolute; content: "";
+      height: 18px; width: 18px;
+      left: 3px; bottom: 3px;
+      background-color: white;
+      border-radius: 50%;
+      transition: 0.3s;
+    }
+    input:checked + .slider { background-color: #a78bfa; }
+    input:checked + .slider:before { transform: translateX(18px); }
+    #site-label { font-size: 12px; color: #aaa; word-break: break-all; margin-bottom: 6px; }
+    .reset-btn {
+      width: 100%;
+      padding: 8px;
+      background: #0f3460;
+      color: #aaa;
+      border: none;
+      border-radius: 8px;
+      font-size: 12px;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+    .reset-btn:hover { background: #1a4a7a; color: #fff; }
+
+    /* Brightness section */
+    .slider-row {
+      background: #16213e;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+    }
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .slider-header .label { font-size: 13px; }
+    .level-name {
+      font-size: 12px;
+      color: #a78bfa;
+      font-weight: 600;
+    }
+
+    /* Range + tick marks */
+    .range-wrap {
+      position: relative;
+      padding-bottom: 18px;
+    }
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 4px;
+      border-radius: 4px;
+      background: linear-gradient(to right, #a78bfa var(--val, 60%), #333 var(--val, 60%));
+      outline: none;
+      cursor: pointer;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #a78bfa;
+      box-shadow: 0 0 6px rgba(167,139,250,0.7);
+      transition: transform 0.15s;
+    }
+    input[type=range]:focus { outline: none; }
+    input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+    /* Tick marks */
+    .ticks {
+      display: flex;
+      justify-content: space-between;
+      position: absolute;
+      width: 100%;
+      top: 10px;
+      pointer-events: none;
+    }
+    .tick {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+    .tick-line {
+      width: 2px;
+      height: 5px;
+      background: #444;
+      border-radius: 1px;
+    }
+    .tick.active .tick-line { background: #a78bfa; }
+    .tick-label {
+      font-size: 9px;
+      color: #555;
+      white-space: nowrap;
+    }
+    .tick.active .tick-label { color: #a78bfa; }
+  </style>
+</head>
+<body>
+  <h2>🌙 Night Mode</h2>
+
+  <div class="row">
+    <div>
+      <div class="label">Global Dark Mode</div>
+      <div class="sublabel">Apply to all websites</div>
+    </div>
+    <label class="switch">
+      <input type="checkbox" id="global-toggle" />
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <div class="row">
+    <div>
+      <div class="label">This Site</div>
+      <div id="site-label">loading...</div>
+    </div>
+    <label class="switch">
+      <input type="checkbox" id="site-toggle" />
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <div class="slider-row">
+    <div class="slider-header">
+      <div class="label">Brightness</div>
+      <div class="level-name" id="level-name">Medium</div>
+    </div>
+    <div class="range-wrap">
+      <input type="range" id="brightness-slider" min="0" max="4" step="1" value="2" />
+      <div class="ticks" id="ticks"></div>
+    </div>
+  </div>
+
+  <button class="reset-btn" id="reset-site">Reset site to global default</button>
+
+  <script src="popup.js"></script>
+</body>
+</html>
