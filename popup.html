@@ -137,10 +137,55 @@
       white-space: nowrap;
     }
     .tick.active .tick-label { color: #a78bfa; }
+
+    /* Auto-detected dark mode badge */
+    .detected-badge {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      background: #0d2b1f;
+      border: 1px solid #16a34a44;
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin-bottom: 10px;
+      font-size: 11px;
+      color: #4ade80;
+      cursor: default;
+      position: relative;
+    }
+    .detected-badge.visible { display: flex; }
+    .detected-badge .badge-icon { font-size: 13px; }
+    .detected-badge .badge-text { flex: 1; line-height: 1.4; }
+    .detected-badge .badge-tooltip {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0; right: 0;
+      background: #0a0a1a;
+      border: 1px solid #333;
+      border-radius: 6px;
+      padding: 7px 10px;
+      font-size: 10px;
+      color: #aaa;
+      line-height: 1.5;
+      z-index: 10;
+    }
+    .detected-badge:hover .badge-tooltip { display: block; }
   </style>
 </head>
 <body>
   <h2>🌙 Night Mode</h2>
+
+  <!-- Auto-detected dark mode badge — hidden by default, shown via JS -->
+  <div class="detected-badge" id="detected-badge">
+    <span class="badge-icon">✦</span>
+    <span class="badge-text">Dark mode already active</span>
+    <div class="badge-tooltip">
+      This site has its own dark mode.<br>
+      Night Mode is paused to avoid conflict.<br>
+      Use "This Site" toggle to override.
+    </div>
+  </div>
 
   <div class="row">
     <div>

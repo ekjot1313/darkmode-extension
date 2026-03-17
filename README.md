@@ -8,9 +8,10 @@ A lightweight Chrome extension that applies dark mode to any website, even if th
 
 - **Global toggle** — turn dark mode on for all websites at once
 - **Per-site toggle** — override the global setting for individual sites
-- **Brightness levels** — 5 named levels (Dim / Low / Medium / High / Vivid) to control intensity
+- **5 brightness levels** — Dim / Low / Medium / High / Vivid to control intensity
 - **Keyboard control** — use `←` `→` arrow keys to jump between brightness levels
-- **Persistent settings** — your preferences are saved and restored every time you visit a site
+- **Smart auto-detection** — automatically skips sites that already have dark mode (e.g. GitHub, Linear, Notion) to avoid color conflicts
+- **Persistent settings** — preferences are saved and restored every time you visit a site
 - **Media-aware** — images and videos are re-inverted so they look natural
 
 ---
@@ -30,17 +31,34 @@ img, video, canvas {
 
 The invert percentage is controlled by the brightness level you choose.
 
+Before applying, the extension checks if the site already has dark mode using:
+- Background color luminance of `<html>` / `<body>`
+- Dark class names (`dark`, `dark-mode`, `dark-theme`, etc.) on root elements
+- `data-theme`, `data-color-scheme`, `data-color-mode` attribute values
+
+If dark mode is already detected, the extension skips injection automatically.
+
 ---
 
 ## Brightness Levels
 
-| Level  | Invert % | Description                  |
-|--------|----------|------------------------------|
+| Level  | Invert % | Description                    |
+|--------|----------|--------------------------------|
 | Dim    | 20%      | Very subtle, barely noticeable |
-| Low    | 40%      | Gentle dark tint             |
-| Medium | 60%      | Balanced default             |
-| High   | 80%      | Strong dark mode             |
-| Vivid  | 100%     | Maximum inversion            |
+| Low    | 40%      | Gentle dark tint               |
+| Medium | 60%      | Balanced default               |
+| High   | 80%      | Strong dark mode               |
+| Vivid  | 100%     | Maximum inversion              |
+
+---
+
+## Popup UI
+
+- **Global Dark Mode** — master toggle for all sites
+- **This Site** — per-site override (saved permanently per hostname)
+- **Brightness slider** — click, drag, or use `←` `→` keys to change level
+- **"Dark mode already active" badge** — appears on sites with native dark mode; hover for details
+- **Reset site to global default** — removes the per-site override
 
 ---
 
@@ -65,7 +83,8 @@ The invert percentage is controlled by the brightness level you choose.
 4. Use the **Brightness slider** to adjust intensity
    - Click/drag to any level
    - Use `←` `→` arrow keys for precise level jumps
-5. Click **Reset site to global default** to remove a per-site override
+5. On sites with native dark mode, a green badge will appear — Night Mode is automatically paused to avoid conflicts
+6. Click **Reset site to global default** to remove a per-site override
 
 ---
 
@@ -74,7 +93,7 @@ The invert percentage is controlled by the brightness level you choose.
 ```
 darkmode-extension/
   manifest.json    # Extension config (Manifest V3)
-  content.js       # CSS injection into web pages
+  content.js       # CSS injection + dark mode detection
   popup.html       # Popup UI
   popup.js         # Popup logic, storage, messaging
   icons/
@@ -102,3 +121,9 @@ darkmode-extension/
 - Vanilla JavaScript — no frameworks or dependencies
 - Chrome Extension Manifest V3
 - `chrome.storage.sync` for persistent settings
+
+---
+
+## License
+
+MIT © Ekjot Singh

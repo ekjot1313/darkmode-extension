@@ -18,6 +18,7 @@ const resetBtn     = document.getElementById('reset-site');
 const slider       = document.getElementById('brightness-slider');
 const levelName    = document.getElementById('level-name');
 const ticksEl      = document.getElementById('ticks');
+const detectedBadge = document.getElementById('detected-badge');
 
 // Build tick marks
 LEVELS.forEach((lvl, i) => {
@@ -65,9 +66,16 @@ slider.addEventListener('input', () => {
 
 // Load saved state
 chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-  const url = new URL(tabs[0].url);
+  const tab = tabs[0];
+  const url = new URL(tab.url);
   hostname = url.hostname;
   siteLabel.textContent = hostname;
+
+  // Ask content script if site already has dark mode
+  chrome.tabs.sendMessage(tab.id, { action: 'detectDark' }, (response) => {
+    const alreadyDark = response && response.alreadyDark;
+    detectedBadge.classList.toggle('visible', alreadyDark);
+  });
 
   chrome.storage.sync.get(['globalEnabled', 'siteSettings', 'brightnessLevel'], (data) => {
     const globalEnabled = data.globalEnabled || false;
