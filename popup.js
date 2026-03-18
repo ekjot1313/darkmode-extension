@@ -84,6 +84,7 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
 
     // Ask content script for native dark detection result
     chrome.tabs.sendMessage(tab.id, { action: 'detectDark' }, (response) => {
+      if (chrome.runtime.lastError) return;
       const nativeDark = response && response.alreadyDark;
 
       // Show badge whenever native dark is detected AND extension hasn't
@@ -148,6 +149,8 @@ resetBtn.addEventListener('click', () => {
 
 function sendToCurrentTab(action, brightness) {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    chrome.tabs.sendMessage(tabs[0].id, { action, brightness });
+    chrome.tabs.sendMessage(tabs[0].id, { action, brightness }, () => {
+      chrome.runtime.lastError; // suppress "no receiving end" error on restricted pages
+    });
   });
 }
