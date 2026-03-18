@@ -21,13 +21,11 @@
 
   function markAvatars() {
     document.querySelectorAll('img, canvas, video').forEach(checkAndMarkAvatar);
-    document.querySelectorAll('[style*="background-image"], [style*="background:"], [style*="background: "]').forEach(checkAndMarkBgAvatar);
   }
 
   function checkAndMarkAvatar(el) {
     if (el.classList.contains('__dm-avatar')) return;
     if (isCircular(el)) { el.classList.add('__dm-avatar'); return; }
-    // Check if a close ancestor is a circular clip container
     let parent = el.parentElement;
     for (let i = 0; i < 3 && parent; i++, parent = parent.parentElement) {
       if (isCircular(parent)) { el.classList.add('__dm-avatar'); return; }
@@ -37,15 +35,6 @@
     const src = (el.getAttribute('src') || '').toLowerCase();
     if (/avatar|profile|user.?photo|user.?pic|member|account/.test(cls + alt + src)) {
       el.classList.add('__dm-avatar');
-    }
-  }
-
-  function checkAndMarkBgAvatar(el) {
-    if (el.classList.contains('__dm-bg-avatar')) return;
-    if (isCircular(el)) { el.classList.add('__dm-bg-avatar'); return; }
-    const cls = (el.className || '').toLowerCase();
-    if (/avatar|profile|user.?photo|user.?pic|member|account/.test(cls)) {
-      el.classList.add('__dm-bg-avatar');
     }
   }
 
@@ -61,15 +50,10 @@
         if (node.matches('img, canvas, video')) {
           node.addEventListener('load', () => checkAndMarkAvatar(node), { once: true });
           checkAndMarkAvatar(node);
-        } else if (node.matches('[style*="background-image"], [style*="background:"], [style*="background: "]')) {
-          checkAndMarkBgAvatar(node);
         }
         node.querySelectorAll?.('img, canvas, video').forEach(el => {
           el.addEventListener('load', () => checkAndMarkAvatar(el), { once: true });
           checkAndMarkAvatar(el);
-        });
-        node.querySelectorAll?.('[style*="background-image"], [style*="background:"], [style*="background: "]').forEach(el => {
-          checkAndMarkBgAvatar(el);
         });
       }));
     });
@@ -95,9 +79,7 @@
       [style*="background-image"], [style*="background:"], [style*="background: "] {
         filter: invert(100%) hue-rotate(180deg) !important;
       }
-      img.__dm-avatar, video.__dm-avatar, canvas.__dm-avatar,
-      [style*="background-image"].__dm-bg-avatar, [style*="background:"].__dm-bg-avatar,
-      [style*="background: "].__dm-bg-avatar {
+      img.__dm-avatar, video.__dm-avatar, canvas.__dm-avatar {
         filter: invert(100%) hue-rotate(180deg) !important;
       }
     `;
