@@ -5,7 +5,80 @@
   // Detected immediately on DOM ready — before any storage calls or injection
   let nativeDarkDetected = false;
 
+  function isCircular(el) {
+    const br = window.getComputedStyle(el).borderRadius;
+    if (!br || br === '0px' || br === '0%') return false;
+    const first = br.split(' ')[0];
+    if (first.endsWith('%') && parseFloat(first) >= 40) return true;
+    if (first.endsWith('px')) {
+      const { width, height } = el.getBoundingClientRect();
+      if (width > 0 && parseFloat(first) >= Math.min(width, height) * 0.4) return true;
+    }
+    return false;
+  }
+
+  let avatarObserver = null;
+
+  function markAvatars() {
+    document.querySelectorAll('img, canvas, video').forEach(checkAndMarkAvatar);
+    document.querySelectorAll('[style*="background-image"], [style*="background:"], [style*="background: "]').forEach(checkAndMarkBgAvatar);
+  }
+
+  function checkAndMarkAvatar(el) {
+    if (el.classList.contains('__dm-avatar')) return;
+    if (isCircular(el)) { el.classList.add('__dm-avatar'); return; }
+    // Check if a close ancestor is a circular clip container
+    let parent = el.parentElement;
+    for (let i = 0; i < 3 && parent; i++, parent = parent.parentElement) {
+      if (isCircular(parent)) { el.classList.add('__dm-avatar'); return; }
+    }
+    const cls = (el.className || '').toLowerCase();
+    const alt = (el.getAttribute('alt') || '').toLowerCase();
+    const src = (el.getAttribute('src') || '').toLowerCase();
+    if (/avatar|profile|user.?photo|user.?pic|member|account/.test(cls + alt + src)) {
+      el.classList.add('__dm-avatar');
+    }
+  }
+
+  function checkAndMarkBgAvatar(el) {
+    if (el.classList.contains('__dm-bg-avatar')) return;
+    if (isCircular(el)) { el.classList.add('__dm-bg-avatar'); return; }
+    const cls = (el.className || '').toLowerCase();
+    if (/avatar|profile|user.?photo|user.?pic|member|account/.test(cls)) {
+      el.classList.add('__dm-bg-avatar');
+    }
+  }
+
+  function startAvatarObserver() {
+    if (avatarObserver) return;
+    // Re-check all imgs when they finish loading (border-radius may only resolve after layout)
+    document.querySelectorAll('img, canvas, video').forEach(el => {
+      el.addEventListener('load', () => checkAndMarkAvatar(el), { once: true });
+    });
+    avatarObserver = new MutationObserver(mutations => {
+      mutations.forEach(m => m.addedNodes.forEach(node => {
+        if (node.nodeType !== 1) return;
+        if (node.matches('img, canvas, video')) {
+          node.addEventListener('load', () => checkAndMarkAvatar(node), { once: true });
+          checkAndMarkAvatar(node);
+        } else if (node.matches('[style*="background-image"], [style*="background:"], [style*="background: "]')) {
+          checkAndMarkBgAvatar(node);
+        }
+        node.querySelectorAll?.('img, canvas, video').forEach(el => {
+          el.addEventListener('load', () => checkAndMarkAvatar(el), { once: true });
+          checkAndMarkAvatar(el);
+        });
+        node.querySelectorAll?.('[style*="background-image"], [style*="background:"], [style*="background: "]').forEach(el => {
+          checkAndMarkBgAvatar(el);
+        });
+      }));
+    });
+    avatarObserver.observe(document.body, { childList: true, subtree: true });
+  }
+
   function applyDarkMode(brightness) {
+    markAvatars();
+    startAvatarObserver();
     const pct = brightness !== undefined ? brightness : 60;
     let style = document.getElementById(STYLE_ID);
     if (!style) {
@@ -19,7 +92,12 @@
         background-color: #111 !important;
       }
       img, video, canvas, picture, svg image,
-      [style*="background-image"] {
+      [style*="background-image"], [style*="background:"], [style*="background: "] {
+        filter: invert(100%) hue-rotate(180deg) !important;
+      }
+      img.__dm-avatar, video.__dm-avatar, canvas.__dm-avatar,
+      [style*="background-image"].__dm-bg-avatar, [style*="background:"].__dm-bg-avatar,
+      [style*="background: "].__dm-bg-avatar {
         filter: invert(100%) hue-rotate(180deg) !important;
       }
     `;
@@ -28,6 +106,7 @@
   function removeDarkMode() {
     const style = document.getElementById(STYLE_ID);
     if (style) style.remove();
+    if (avatarObserver) { avatarObserver.disconnect(); avatarObserver = null; }
   }
 
   function detectDarkMode() {
