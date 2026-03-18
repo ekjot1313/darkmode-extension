@@ -157,10 +157,12 @@
       const brightnessMap = [20, 40, 60, 80, 100];
       const brightness    = brightnessMap[levelIndex];
 
-      if (siteOverride === true) {        // User explicitly forced it on — apply regardless of native dark
+      if (siteOverride === 'on') {
         applyDarkMode(brightness);
-      } else if (siteOverride === false) {
+      } else if (siteOverride === 'off') {
         removeDarkMode();
+      } else if (siteOverride === 'native-light') {
+        applyDarkMode(brightness);   // invert to cancel native dark
       } else if (globalEnabled && !nativeDarkDetected) {
         applyDarkMode(brightness);
       } else {
